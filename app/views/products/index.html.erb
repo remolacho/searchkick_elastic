@@ -1,0 +1,98 @@
+<h1>Products#index</h1>
+<%= form_tag products_index_path, :method => :post do %>
+  <p>
+    <%= text_field_tag :search, @term %>
+    <%= submit_tag "Search", :name => nil %>
+<% end %>
+
+<% if @products.present? %>
+  <h1>Productos</h1>
+
+  <% if @products.suggestions.present? %>
+    <p>quiso decir: <b><%= @products.suggestions.join(',')  %></b></p>
+  <% end %>
+
+  <% unless @products.last_page? %>
+    <%= link_to 'Next', products_index_path(page:  @products.next_page, search: @term) %>
+  <% end %>
+
+  <table>
+  <thead>
+    <th>Name</th>
+    <th>Precio</th>
+    <th>Descripcion</th>
+    <th>Categoria</th>
+    <th></th>
+  </thead>
+  <tbody>
+     <% @products.each do |pro| %>
+        <tr>
+          <td><%= (pro.search_highlights[:title] || pro.title).html_safe %></td>
+          <td><%= pro.price %></td>
+          <td><%= (pro.search_highlights[:description] || pro.description).html_safe %></td>
+          <td><%= pro.categories.map(&:name) %></td>
+          <td><%= link_to 'similares', products_index_path(product_id: pro.id) %></td>
+        </tr>
+     <% end %>
+  </tbody>
+  </table>
+  <br>
+  <table border="2">
+  <thead>
+    <tr>
+      <td>Pagina actual</td>
+      <td>siguiente</td>
+      <td>total paginas</td>
+      <td>es la primera</td>
+      <td>es la ultima</td>
+      <td></td>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><%= @products.current_page %></td>
+      <td><%= @products.next_page %></td>
+      <td><%= @products.total_pages %></td>
+      <td><%= @products.first_page? %></td>
+      <td><%= @products.last_page? %></td>
+      <td></td>
+    </tr>
+  </tbody>
+  </table>
+  <br>
+
+  <% if @categories.present? %>
+    <table>
+      <thead>
+      <% @categories.each do |category| %>
+        <tr>
+          <td><%= "#{category[:name]}(#{category[:count]})" %></td>
+        </tr>
+      <% end %>
+      </thead>
+    </table>
+  <% end %>
+
+  <% if @similar.present? %>
+    <h1>Similares</h1>
+    <table>
+      <thead>
+      <th>Name</th>
+      <th>Precio</th>
+      <th>Descripcion</th>
+      <th>Categorias</th>
+      </thead>
+      <tbody>
+      <% @similar.each do |pro| %>
+        <tr>
+          <td><%= pro.title %></td>
+          <td><%= pro.price %></td>
+          <td><%= pro.description %></td>
+          <td><%= pro.categories.map(&:name) %></td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  <% end %>
+
+<% end %>
